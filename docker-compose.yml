@@ -14,7 +14,7 @@ services:
         - ./data/server2/:/server2files
     networks:
       example:
-  cron:
+  backup-server:
     build:
       context: Dockerfiles/ubuntu/.
     volumes:

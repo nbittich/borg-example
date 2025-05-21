@@ -1,21 +1,39 @@
-Recette pour une stratégie de backup/restauration simple avec des outils standards linux:
+1) démarrer les containeurs docker:
 
-Ingrédients:
-  - cron pour la plannification de la tâche de backup
-  - rsync / ssh pour la synchronisation entre serveur source -> serveur backup
-  - Gnu gpg (encryption/décription) -> pour encrypter les backups
-  - Tar / Zip -> pour compresser les backup
-  - Bash -> pour le scripting
+`docker compose up -d`
 
+2) tester la connectivité sur les différents serveurs:
+   2.1) Tester sur server1:
+        - `docker compose exec server1 bash`
+        - `ssh root@backup-server` # répondre "Yes" pour l'ajout de la clé ssh
 
-Recette:
-  - Créer un script bash qui va:
-       - créer un dossier avec la date du jour dans le dossier MesBakcups
-       - copier les fichiers du dossier "MesDocuments" dans le dossier créé
-       - encrypter les fichiers avec gpg
-       - compresser le dossier créé avec tar ou zip
-       - exécuter la commande rsync 
-            exemple: rsync -avz MesBackups/dossier-16-04-2025.zip root@mon-serveur-backup.be:/opt/mes-backups
-  - ajouter une tâche cron qui va se lancer tout les jours à 2h du matin et qui va appeler le script bash défini ci dessus
-
+   2.2) Tester sur server2:
+        - `docker compose exec server2 bash`
+        - `ssh root@backup-server` # répondre "Yes" pour l'ajout de la clé ssh
+   2.3) Tester sur backup-server:
+        - `docker compose exec backup-server bash`
+        - `ssh root@server1` # répondre "Yes" pour l'ajout de la clé ssh
+        - `ssh root@server2` # répondre "Yes" pour l'ajout de la clé ssh
+3) Initialiser le repository borg, deux options:
+    - directement depuis le serveur backup:
+            * `docker compose exec backup-server bash`
+            * `borg init --encryption=repokey /mesbackups` # mettre un mot de passe, confirmer le mot de passe
+    - à distance depuis le server1:
+            * `docker compose exec server1 bash`
+            * `borg init --encryption=repokey root@backup-server:/mesbackups` # mettre un mot de passe, confirmer le mot de passe
+4) Créer une backup du server1 (le dossier /server1files):
+        - `docker compose exec server1 bash`
+        - `borg create root@backup-server:/mesbackups::backup1 /server1files`
+5) Créer une backup du server2 (le dossier /server2files):
+        - `docker compose exec server2 bash`
+        - `borg create root@backup-server:/mesbackups::backup2 /server2files`
+6) Lister les backups:
+        - `docker compose exec backup-server bash`
+        - `borg list /mesbackups`
+7) Lister les fichiers d'une backup (la backup1 par exemple):
+        - `docker compose exec backup-server bash`
+        - `borg list /mesbackups::backup1`
+8) Restaurer la backup du serveur 2 sur le serveur 1:
+            * `docker compose exec server1 bash`
+            * `borg extract root@backup-server:/mesbackups::backup2` # les fichiers devraient être au niveau de /server2files
 

@@ -16,11 +16,11 @@
         - `ssh root@server2` # répondre "Yes" pour l'ajout de la clé ssh
 3) Initialiser le repository borg, deux options:
     - directement depuis le serveur backup:
-            * `docker compose exec backup-server bash`
-            * `borg init --encryption=repokey /mesbackups` # mettre un mot de passe, confirmer le mot de passe
+        - `docker compose exec backup-server bash`
+        - `borg init --encryption=repokey /mesbackups` # mettre un mot de passe, confirmer le mot de passe
     - à distance depuis le server1:
-            * `docker compose exec server1 bash`
-            * `borg init --encryption=repokey root@backup-server:/mesbackups` # mettre un mot de passe, confirmer le mot de passe
+        - `docker compose exec server1 bash`
+        - `borg init --encryption=repokey root@backup-server:/mesbackups` # mettre un mot de passe, confirmer le mot de passe
 4) Créer une backup du server1 (le dossier /server1files):
         - `docker compose exec server1 bash`
         - `borg create root@backup-server:/mesbackups::backup1 /server1files`
@@ -34,6 +34,6 @@
         - `docker compose exec backup-server bash`
         - `borg list /mesbackups::backup1`
 8) Restaurer la backup du serveur 2 sur le serveur 1:
-            * `docker compose exec server1 bash`
-            * `borg extract root@backup-server:/mesbackups::backup2` # les fichiers devraient être au niveau de /server2files
+        - `docker compose exec server1 bash`
+        - `borg extract root@backup-server:/mesbackups::backup2` # les fichiers devraient être au niveau de /server2files
 

@@ -1,0 +1,31 @@
+services:
+  server1:
+    build:
+      context: Dockerfiles/ubuntu/.
+    volumes:
+        - ./data/server1/:/server1files
+    networks:
+      example:
+
+  server2:
+    build:
+      context: Dockerfiles/ubuntu/.
+    volumes:
+        - ./data/server2/:/server2files
+    networks:
+      example:
+  cron:
+    build:
+      context: Dockerfiles/ubuntu/.
+    volumes:
+        - ./config/cron/crontab:/backupcron
+        - ./data/backup:/mesbackups
+        - ./config/scripts:/backupscript
+        - ./config/cron/passphrase:/.passphrase
+    environment:
+        GPG_PASSPHRASE: coucou
+        #command: bash -c "crontab /backupcron -u root && cron -f"
+    networks:
+      example:
+networks:
+  example:

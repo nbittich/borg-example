@@ -1,4 +1,3 @@
 SHELL=/bin/bash
-# * * * * * bash /backupscript/backup.sh /server1files /mesbackups/ root@server1 >> /var/log/cron1.log 2>&1
-# * * * * * bash /backupscript/backup.sh /server2files /mesbackups/ root@server2 >> /var/log/cron2.log 2>&1
+ * * * * * borgmatic --verbosity -1 --syslog-verbosity 1 >> /var/log/cron1.log 2>&1
 

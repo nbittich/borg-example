@@ -3,7 +3,10 @@ services:
     build:
       context: Dockerfiles/ubuntu/.
     volumes:
-        - ./data/server1/:/server1files
+      - ./data/server1/:/server1files
+      - ./config/cron/crontab:/backupcron
+      - ./config/cron/borgmatic-config-server1.yml:/etc/borgmatic/config.yaml
+    command: bash -c "crontab /backupcron -u root && cron -f"
     networks:
       example:
 
@@ -11,20 +14,19 @@ services:
     build:
       context: Dockerfiles/ubuntu/.
     volumes:
-        - ./data/server2/:/server2files
+      - ./data/server2/:/server2files
+      - ./config/cron/crontab:/backupcron
+      - ./config/cron/borgmatic-config-server2.yml:/etc/borgmatic/config.yaml
+    command: bash -c "crontab /backupcron -u root && cron -f"
     networks:
       example:
   backup-server:
     build:
       context: Dockerfiles/ubuntu/.
     volumes:
-        - ./config/cron/crontab:/backupcron
-        - ./data/backup:/mesbackups
-        - ./config/scripts:/backupscript
-        - ./config/cron/passphrase:/.passphrase
-    environment:
-        GPG_PASSPHRASE: coucou
-        #command: bash -c "crontab /backupcron -u root && cron -f"
+      - ./config/cron/crontab:/backupcron
+      - ./data/backup:/mesbackups
+      #command: bash -c "crontab /backupcron -u root && cron -f"
     networks:
       example:
 networks:
